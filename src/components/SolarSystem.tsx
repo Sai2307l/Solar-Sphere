@@ -1,9 +1,8 @@
 import React, { useRef, useState } from "react";
-import { OrbitControls, Stars } from "@react-three/drei";
+import { OrbitControls, Stars, Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { planets } from "../constant/index";
-import { Html } from "@react-three/drei";
 
 function Planet({
   name,
@@ -12,6 +11,7 @@ function Planet({
   distance,
   rotation_speed,
   revolution_speed,
+  eccentricity,
   ...props
 }: Readonly<{
   name: string;
@@ -20,6 +20,7 @@ function Planet({
   distance: number;
   rotation_speed: number;
   revolution_speed: number;
+  eccentricity: number;
 }>) {
   const [hover, setHover] = useState(false);
   const handlePointerOver = () => setHover(true);
@@ -27,22 +28,59 @@ function Planet({
 
   const ref = useRef<THREE.Mesh>(null);
   const surface = new THREE.TextureLoader().load(texture);
+  const angleRef = useRef(Math.random() * Math.PI * 2);
+
+  // Precompute ellipse points for the orbit path
+  const orbitPoints = React.useMemo(() => {
+    const points: THREE.Vector3[] = [];
+    const a = distance;
+    const b = distance * (1 - eccentricity);
+    for (let i = 0; i <= 128; i++) {
+      const theta = (i / 128) * Math.PI * 2;
+      points.push(
+        new THREE.Vector3(a * Math.cos(theta), 0, b * Math.sin(theta))
+      );
+    }
+    return points;
+  }, [distance, eccentricity]);
+
   useFrame((state, delta) => {
+    angleRef.current += delta * revolution_speed;
+    const a = distance;
+    const b = distance * (1 - eccentricity);
+    const x = a * Math.cos(angleRef.current);
+    const z = b * Math.sin(angleRef.current);
+
     if (ref.current) {
-      // Orbit around the sun
-      ref.current.parent!.rotation.y += (delta * revolution_speed) / distance;
-      // Self-rotation
+      ref.current.position.set(x, 0, z);
       ref.current.rotation.y += delta * rotation_speed;
     }
   });
 
   return (
     <group>
+      {/* Orbit Path */}
+      <line>
+        <bufferGeometry attach="geometry">
+          <bufferAttribute
+            args={[
+              new Float32Array(orbitPoints.flatMap((v) => [v.x, v.y, v.z])),
+              3,
+            ]}
+            attach="attributes-position"
+            count={orbitPoints.length}
+            array={
+              new Float32Array(orbitPoints.flatMap((v) => [v.x, v.y, v.z]))
+            }
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial attach="material" color="#888" linewidth={1} />
+      </line>
       <mesh
         onPointerOver={handlePointerOver}
         onPointerOut={handlePointerOut}
         ref={ref}
-        position={[distance, 0, 0]}
         {...props}
       >
         <sphereGeometry args={[size, 32, 32]} />
@@ -79,12 +117,18 @@ function Sun() {
   );
 }
 
-const SolarSystem: React.FC = () => {
+const SolarSystem = ({ time }: { time: number }) => {
+  // Update planets' properties based on time
+  const updatedPlanets = planets.map((planet) => ({
+    ...planet,
+    rotation_speed: planet.rotation_speed * time,
+    revolution_speed: planet.revolution_speed * time,
+  }));
   return (
     <group>
       <Stars radius={50} depth={60} count={5000} factor={4} fade />
       <Sun />
-      {planets.map((planet) => (
+      {updatedPlanets.map((planet) => (
         <Planet key={planet.name} {...planet} />
       ))}
       <OrbitControls enablePan={false} />
