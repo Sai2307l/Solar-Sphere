@@ -3,7 +3,7 @@ import React from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Stars } from "@react-three/drei";
 
-import Earth from "@/components/planets/earth";
+import Mercury from "@/components/planets/mercury";
 import PlanetInfo from "@/components/planets/info";
 import { PlanetInfoProps } from "@/constant/types";
 import { planetsData } from "@/constant/index";
@@ -16,11 +16,11 @@ export default function Page() {
         {/* Info Side */}
         <div className="flex-1 p-8 space-y-8 h-screen overflow-y-auto bg-[#111] rounded-r-2xl ">
           <h1 className="text-3xl font-bold text-blue-200 mb-4 text-center pt-24">
-            Earth
+            Mercury
           </h1>
           <PlanetInfo
             {...(planetsData.find(
-              (planet) => planet.name === "Earth"
+              (planet) => planet.name === "Mercury"
             ) as PlanetInfoProps)}
           />
         </div>
@@ -30,7 +30,7 @@ export default function Page() {
             <ambientLight intensity={10} color={"white"} />
             <directionalLight position={[5, 5, 5]} intensity={1} />
             <Stars radius={100} depth={50} count={5000} factor={4} />
-            <Earth />
+            <Mercury />
             <OrbitControls enablePan={false} />
           </Canvas>
         </div>
