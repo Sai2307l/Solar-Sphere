@@ -3,7 +3,7 @@ import { OrbitControls, Stars, Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { planets } from "../constant/index";
-
+import AnimatedStars from "./planets/stars"; // Import the animated stars component
 function Planet({
   name,
   texture,
@@ -126,6 +126,7 @@ const SolarSystem = ({ time }: { time: number }) => {
   }));
   return (
     <group>
+      <AnimatedStars />
       <Stars radius={50} depth={60} count={5000} factor={4} fade />
       <Sun />
       {updatedPlanets.map((planet) => (

@@ -3,15 +3,9 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { TextureLoader } from "three";
 import { Html } from "@react-three/drei";
-
+import AnimatedStars from "./stars";
+import { Mars_Moons } from "../../constant/moons";
 const marsRadius = 1;
-const phobosRadius = 11.267 / 3389.5;
-const deimosRadius = 6.2 / 3389.5;
-
-const majorMoons = [
-  { index: 1, name: "Phobos", radius: phobosRadius, color: "#b2a181" },
-  { index: 2, name: "Deimos", radius: deimosRadius, color: "#cfcfcf" },
-];
 
 function Mars() {
   const texture_mars = new TextureLoader().load(
@@ -77,8 +71,9 @@ function Moon({
 export default function MarsSystem() {
   return (
     <Suspense fallback={null}>
+      <AnimatedStars />
       <Mars />
-      {majorMoons.map((moon, index) => (
+      {Mars_Moons.map((moon, index) => (
         <Moon
           key={moon.index}
           radius={moon.radius}

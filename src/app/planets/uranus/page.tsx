@@ -27,7 +27,7 @@ export default function Page() {
         {/* 3D Canvas Side */}
         <div className="flex-1 bg-[#111] rounded-l-2xl">
           <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
-            <ambientLight intensity={10} color={"white"} />
+            <ambientLight intensity={3} color={"white"} />
             <directionalLight position={[5, 5, 5]} intensity={1} />
             <Stars radius={100} depth={50} count={5000} factor={4} />
             <Uranus />

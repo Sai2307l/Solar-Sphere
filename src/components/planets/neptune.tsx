@@ -1,36 +1,37 @@
-import React, { Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stars } from "@react-three/drei";
+import React, { Suspense, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
+import { OrbitControls, useTexture } from "@react-three/drei";
 import * as THREE from "three";
-
+import AnimatedStars from "./stars";
+import { Neptune_Moons } from "../../constant/moons";
 // Neptune color and moons data
 const NEPTUNE_COLOR = "#4B70DD";
-const MOONS = [
-  { name: "Triton", distance: 3.5, size: 0.25, color: "#bfc9d9" },
-  { name: "Proteus", distance: 4.5, size: 0.12, color: "#a0a0a0" },
-  { name: "Nereid", distance: 6.5, size: 0.09, color: "#c0c0c0" },
-  { name: "Larissa", distance: 5.5, size: 0.08, color: "#b0b0b0" },
-  { name: "Despina", distance: 4.0, size: 0.07, color: "#bdbdbd" },
-  { name: "Galatea", distance: 4.2, size: 0.07, color: "#d0d0d0" },
-  { name: "Thalassa", distance: 3.8, size: 0.06, color: "#e0e0e0" },
-  { name: "Naiad", distance: 3.6, size: 0.06, color: "#eaeaea" },
-];
 
-// Neptune planet mesh
+const NEPTUNE_TEXTURE_URL = "../../../assets/neptune_surface.jpg";
+
+// Neptune planet mesh with rotation
 function Neptune() {
+  const texture = useTexture(NEPTUNE_TEXTURE_URL);
+  const meshRef = useRef<THREE.Mesh>(null);
+  useFrame((_, delta) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y += 0.25 * delta; // Neptune rotation speed
+    }
+  });
   return (
-    <mesh>
+    <mesh ref={meshRef}>
       <sphereGeometry args={[2, 64, 64]} />
       <meshStandardMaterial
         color={NEPTUNE_COLOR}
         roughness={0.7}
         metalness={0.3}
+        map={texture}
       />
     </mesh>
   );
 }
 
-// Moon mesh
+// Moon mesh with revolution
 function Moon({
   distance,
   size,
@@ -42,14 +43,22 @@ function Moon({
   readonly color: string;
   readonly angle?: number;
 }) {
-  // Position moons in orbit using angle
-  const x = Math.cos(angle) * distance;
-  const z = Math.sin(angle) * distance;
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((_, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += 0.15 * delta; // Moon revolution speed
+    }
+  });
+
+  // Calculate position based on distance and angle
   return (
-    <mesh position={[x, 0, z]}>
-      <sphereGeometry args={[size, 32, 32]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
+    <group ref={groupRef} rotation={[0, angle, 0]}>
+      <mesh position={[distance, 0, 0]}>
+        <sphereGeometry args={[size, 32, 32]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+    </group>
   );
 }
 
@@ -71,18 +80,20 @@ function OrbitRing({ radius }: { readonly radius: number }) {
 export default function NeptuneSystem() {
   return (
     <Suspense fallback={null}>
+      <AnimatedStars />
       <Neptune />
-      {MOONS.map((moon, i) => (
+      {Neptune_Moons.map((moon, i) => (
         <React.Fragment key={moon.name}>
           <Moon
             distance={moon.distance}
             size={moon.size}
             color={moon.color}
-            angle={(i / MOONS.length) * Math.PI * 2}
+            angle={(i / Neptune_Moons.length) * Math.PI * 2}
           />
           <OrbitRing radius={moon.distance} />
         </React.Fragment>
       ))}
+      <OrbitControls enablePan={false} />
     </Suspense>
   );
 }

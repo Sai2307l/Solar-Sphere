@@ -3,17 +3,11 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { TextureLoader } from "three";
 import { Html } from "@react-three/drei";
-
-// Major moons (Galilean moons, scaled distances)
-const majorMoons = [
-  { name: "Io", radius: 3.5, size: 0.25, color: "#e3c16f" },
-  { name: "Europa", radius: 4.5, size: 0.22, color: "#cfd8dc" },
-  { name: "Ganymede", radius: 6, size: 0.35, color: "#b0bec5" },
-  { name: "Callisto", radius: 8, size: 0.32, color: "#8d99ae" },
-];
+import AnimatedStars from "./stars";
+import { Jupiter_Moons } from "../../constant/moons"; 
 
 // Add random initial angles to major moons
-const moons = majorMoons.map((moon) => ({
+const moons = Jupiter_Moons.map((moon) => ({
   ...moon,
   angle: Math.random() * Math.PI * 2,
 }));
@@ -120,6 +114,7 @@ function Jupiter() {
 export default function JupiterSystem() {
   return (
     <>
+      <AnimatedStars />
       <Jupiter />
       {moons.map((moon, i) => (
         <Moon

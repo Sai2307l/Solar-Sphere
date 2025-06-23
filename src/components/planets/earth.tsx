@@ -3,11 +3,13 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Line } from "@react-three/drei";
 import { TextureLoader } from "three";
-
+import AnimatedStars from "./stars"; // Import the animated stars component
 export default function Earth() {
   const moonRef = useRef<THREE.Mesh>(null!);
-  const moonOrbitA = 2; // semi-major axis
-  const moonOrbitB = 1.2; // semi-minor axis
+  // Realistic Moon orbit: average distance ~384,400 km, Earth's radius ~6,371 km
+  // Scale so Earth radius = 1 unit, so semi-major axis = 384400/6371 ≈ 60.3
+  const moonOrbitA = 60.3; // semi-major axis (scaled)
+  const moonOrbitB = 58.4; // semi-minor axis (scaled, slightly less for eccentricity)
   const texture_earth = new TextureLoader().load(
     "../../../assets/earth_surface.jpg"
   );
@@ -46,6 +48,7 @@ export default function Earth() {
 
   return (
     <group>
+      <AnimatedStars />
       {/* Earth */}
       <mesh>
         <sphereGeometry args={[earthRadius, 32, 32]} />

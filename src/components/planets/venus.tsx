@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Mesh, TextureLoader } from "three";
 import { Html } from "@react-three/drei";
+import AnimatedStars from "./stars"; // Import the animated stars component
 
 const Venus: React.FC = () => {
   const venusRef = useRef<Mesh>(null!);
@@ -18,6 +19,7 @@ const Venus: React.FC = () => {
 
   return (
     <group>
+      <AnimatedStars />
       <mesh
         ref={venusRef}
         onPointerOver={() => setHovered(true)}
